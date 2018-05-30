@@ -3,6 +3,7 @@ import os
 CONTENT_DIR = 'content'
 TEMPLATES_DIR = 'templates'
 DOCS_DIR = 'docs'
+TEMPLATE_BASE = '%s/base.html' % TEMPLATES_DIR
 
 def _get_html_pages(src_dir):
     """Return list of html files in src_dir"""
@@ -31,10 +32,9 @@ def _get_html_pages(src_dir):
 
 def _build_html_page(filename, dest_dir):
     """Wrap html file in top and bottom templates and save in dest_dir"""
-    top = open('%s/top.html' % TEMPLATES_DIR, 'r').read()
-    bottom = open('%s/bottom.html' % TEMPLATES_DIR, 'r').read()
+    base = open(TEMPLATE_BASE, 'r').read()
     content = open(filename, 'r').read()
-    page_content = top + content + bottom
+    page_content = base.replace('{{content}}', content)
 
     dest_filename = '%s/%s' % (dest_dir, filename.split('/')[-1])
     page_file = open(dest_filename, 'w')
