@@ -8,7 +8,13 @@
     </button>
     <div class="collapse navbar-collapse" id="navbarResponsive">
       <ul class="navbar-nav ml-auto">
-        {{nav_links}}
+        {% for nav_link in nav_links %}
+          <li class="nav-item">
+            <a class="nav-link" href="{{ nav_link.filename }}">
+              {{ nav_link.title }}
+            </a>
+          </li>
+        {% endfor %}
         <li class="nav-item">
           <a class="nav-link" href="#contact">Contact</a>
         </li>
