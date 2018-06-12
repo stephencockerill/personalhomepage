@@ -23,6 +23,9 @@ def main():
         build()
     elif command == 'new':
         new()
+    else:
+        print(USAGE)
+        return
 
 if __name__=='__main__':
     main()

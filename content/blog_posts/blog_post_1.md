@@ -1,4 +1,4 @@
-title: Discovering Delaware Boogers
+title: Discovering Delaware
 subtitle: Find out why Delaware is the place to be this summer!
 author: Stephen Cockerill
 date: May 28, 2018
