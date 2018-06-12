@@ -1,4 +1,5 @@
 import glob
+import markdown
 import os
 
 from jinja2 import (
@@ -7,13 +8,14 @@ from jinja2 import (
 )
 
 CONTENT_DIR = 'content'
+BLOG_DIR = '%s/blog_posts' % CONTENT_DIR
 DOCS_DIR = 'docs'
 TEMPLATES_DIR = 'templates'
 TEMPLATE_NAV = '%s/nav.html' % TEMPLATES_DIR
 
 jinja_env = Environment(loader=FileSystemLoader(TEMPLATES_DIR))
 
-def main():
+def build():
     """Build full html page for each html file in CONTENT_DIR"""
     nav = _build_nav()
     for page_dict in _get_html_pages(CONTENT_DIR, nav=nav):
@@ -49,23 +51,23 @@ def _build_nav():
     })
 
 def _get_blog_posts():
-    """Return list of blog posts"""
-    blog_posts = [
-        {
-            'filename': 'blog_post_1.html',
-            'date': 'May 29, 2018',
-            'title': 'Discovering Delaware',
-            'subtitle': 'Find out why Delaware is the place to be this summer!',
-            'img': 'img/san-francisco.jpg',
-        },
-        {
-            'filename': 'blog_post_2.html',
-            'date': 'May 25, 2018',
-            'title': 'Airflow Tutorial',
-            'subtitle': 'A look at how to use Apache Airflow to build your data pipeline',
-            'img': 'img/icons/about.svg',
-        },
-    ]
+    """Build HTML pages from Markdown blog posts"""
+    blog_posts = []
+    md = markdown.Markdown(extensions=["markdown.extensions.meta"])
+    for filepath in glob.glob('%s/*.md' % BLOG_DIR):
+        blog_post = {}
+        filename = os.path.basename(filepath)
+        filename = '%s.html' % filename.split('.')[0]
+        content = md.convert(_get_content(filepath))
+
+        blog_post['content'] = content
+        blog_post['filename'] = filename
+        blog_post['title'] = md.Meta['title'][0]
+        blog_post['author'] = md.Meta['author'][0]
+
+        blog_post['date'] = md.Meta['date'][0]
+
+        blog_posts.append(blog_post)
     return blog_posts
 
 def _get_content(filepath):
@@ -77,7 +79,7 @@ def _write_content(dest_file, content):
     dest_file = open(dest_file, 'w')
     dest_file.write(content)
     dest_file.close()
-    print('built %s' % dest_file)
+    print('built %s' % dest_file.name)
 
 def _build_blog_posts(nav=None):
     """Build blog posts and return feed items html"""
@@ -101,6 +103,13 @@ def _build_blog_posts(nav=None):
 
     return blog_feed_items
 
-
-if __name__=='__main__':
-    main()
+def new(filename=None):
+    content = _get_content('%s/blog_post.md' % TEMPLATES_DIR)
+    if not filename:
+        filename = 'new_blog_post_template'
+    filename = '%s.md' % filename.split('.')[0]
+    filepath = '%s/%s' % (BLOG_DIR, filename)
+    _write_content(
+        filepath,
+        content,
+    )
